@@ -13,7 +13,7 @@
 
 //#include "..\..\..\ProjectsLib\LibMarcin\Functions.h"
 //#include "..\..\..\ProjectsLib\LibMarcin\NormalizationLib.h"
-//#include "..\..\..\ProjectsLib\LibMarcin\HaralickLib.h"
+#include "..\..\..\ProjectsLib\LibMarcin\HaralickLib.h"
 #include "..\..\..\ProjectsLib\LibMarcin\RegionU16Lib.h"
 
 //#include "..\..\..\ProjectsLib\LibMarcin\ParamFromXML.h"
@@ -37,8 +37,17 @@ using namespace boost::filesystem;
 int main(int argc, char* argv[])
 {
 	bool displayInput = true;
-	path PathToProcess("C:\\Data\\FeatureVariabilityTest\\InData\\BarsA0-90F08T04N00000");
-	path PathROIFile("C:\\Data\\FeatureVariabilityTest\\InData\\ROIs512x512c51x51xCount181\\ROIRectSize51x51Nr000.tif");
+	path PathToProcess("C:\\Data\\FeatureVariabilityTest\\InData\\BarsA0-180F16T08N00000"); //"C:\\Data\\FeatureVariabilityTest\\InData\\BarsA0-90F08T04N00000"
+	path PathROIFile("C:\\Data\\FeatureVariabilityTest\\InData\\ROIs512x512c51x51xCount001\\ROIRectSize59x59Nr000.tif");
+
+	int ofset = 3;
+	int angleNr = 0;
+
+	bool symetricCom = true;
+	int binCount = 16;
+	float maxNorm = 65535.0;
+	float minNorm = 0.0;
+
 
 	regex FilePattern(".+.tif");
 	if (!exists(PathToProcess))
@@ -122,6 +131,8 @@ int main(int argc, char* argv[])
 	{
 		namedWindow("Image", WINDOW_AUTOSIZE);
 		namedWindow("ROI", WINDOW_AUTOSIZE);
+		namedWindow("SmallImage", WINDOW_AUTOSIZE);
+		namedWindow("SmallROI", WINDOW_AUTOSIZE);
 	}
 
 	string OutString;
@@ -164,6 +175,26 @@ int main(int argc, char* argv[])
 			imshow("Image", ImRGB);
 			imshow("ROI", ShowSolidRegionOnImage(ImRoi, ImRGB));
 			waitKey();
+		}
+		OutString += "Image\tRoi\tContrast\tenergy\thomogeneity\tCorelation\n";
+
+		for (unsigned short roiNr = 1; roiNr <= maxRoiNr; roiNr++)
+		{
+			Mat SmallIm;
+			Mat Roi;
+			ImIn(Rect(minRoiX[roiNr], minRoiY[roiNr], maxRoiX[roiNr] - minRoiX[roiNr], maxRoiY[roiNr] - minRoiY[roiNr])).copyTo(SmallIm);
+			ImRoi(Rect(minRoiX[roiNr], minRoiY[roiNr], maxRoiX[roiNr] - minRoiX[roiNr], maxRoiY[roiNr] - minRoiY[roiNr])).copyTo(Roi);
+
+			if (displayInput)
+			{
+				Mat ImRGBSmall = ShowImage16PseudoColor(SmallIm, 0.0, 65535.0);
+				imshow("SmallImage", ImRGBSmall);
+				imshow("SmallROI", ShowSolidRegionOnImage(Roi, ImRGBSmall));
+				waitKey();
+			}
+			Mat COM = COMStd(SmallIm, Roi, ofset, angleNr, roiNr, symetricCom, binCount, maxNorm,minNorm);
+			float contrast, energy, homogenity, correlation;
+			COMParams(COM, &contrast, &energy, &homogenity, &correlation);
 		}
 	}
 	return 0;

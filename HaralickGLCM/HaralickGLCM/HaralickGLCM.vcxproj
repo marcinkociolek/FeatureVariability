@@ -79,6 +79,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\..\..\MSVSBuildDir\$(ProjectName)Build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\MSVSBuildDir\$(ProjectName)Build\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -145,12 +147,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\ProjectsLib\LibMarcin\DispLib.cpp" />
+    <ClCompile Include="..\..\..\ProjectsLib\LibMarcin\HaralickLib.cpp" />
     <ClCompile Include="..\..\..\ProjectsLib\LibMarcin\RegionU16Lib.cpp" />
     <ClCompile Include="..\..\..\ProjectsLib\LibMarcin\StringFcLib.cpp" />
     <ClCompile Include="HaralickGLCM.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\ProjectsLib\LibMarcin\DispLib.h" />
+    <ClInclude Include="..\..\..\ProjectsLib\LibMarcin\HaralickLib.h" />
     <ClInclude Include="..\..\..\ProjectsLib\LibMarcin\RegionU16Lib.h" />
     <ClInclude Include="..\..\..\ProjectsLib\LibMarcin\StringFcLib.h" />
   </ItemGroup>
