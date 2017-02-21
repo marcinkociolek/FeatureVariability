@@ -36,10 +36,12 @@ using namespace boost::filesystem;
 
 int main(int argc, char* argv[])
 {
-	bool displayInput = true;
+	bool displayInput = false;
 	path PathToProcess("C:\\Data\\FeatureVariabilityTest\\InData\\BarsA0-180F16T08N00000"); //"C:\\Data\\FeatureVariabilityTest\\InData\\BarsA0-90F08T04N00000"
 	path PathROIFile("C:\\Data\\FeatureVariabilityTest\\InData\\ROIs512x512c51x51xCount001\\ROIRectSize59x59Nr000.tif");
 
+	string OutFolderName = "C:\\Data\\FeatureVariabilityTest\\";
+	string OutFilerName = "BarsA0-180F16T08N00000.txt";
 	int ofset = 3;
 	int angleNr = 0;
 
@@ -48,6 +50,7 @@ int main(int argc, char* argv[])
 	float maxNorm = 65535.0;
 	float minNorm = 0.0;
 
+	int waitTime = 50;
 
 	regex FilePattern(".+.tif");
 	if (!exists(PathToProcess))
@@ -136,6 +139,7 @@ int main(int argc, char* argv[])
 	}
 
 	string OutString;
+	OutString += "Image\tRoi\tContrast\tenergy\thomogeneity\tCorelation\n";
 	for (directory_entry& FileToProcess : directory_iterator(PathToProcess))
 	{
 		path InPath = FileToProcess.path();
@@ -152,7 +156,7 @@ int main(int argc, char* argv[])
 			continue;
 		}
 
-		OutString += "In file - " + InPath.filename().string() + "\n";
+
 		cout << "In file  - " << InPath.filename().string() << "\n";
 
 		Mat ImIn = imread(InPath.string(), CV_LOAD_IMAGE_ANYDEPTH);
@@ -174,9 +178,9 @@ int main(int argc, char* argv[])
 			Mat ImRGB = ShowImage16PseudoColor(ImIn, 0.0, 65535.0);
 			imshow("Image", ImRGB);
 			imshow("ROI", ShowSolidRegionOnImage(ImRoi, ImRGB));
-			waitKey();
+			waitKey(waitTime);
 		}
-		OutString += "Image\tRoi\tContrast\tenergy\thomogeneity\tCorelation\n";
+		
 
 		for (unsigned short roiNr = 1; roiNr <= maxRoiNr; roiNr++)
 		{
@@ -190,13 +194,23 @@ int main(int argc, char* argv[])
 				Mat ImRGBSmall = ShowImage16PseudoColor(SmallIm, 0.0, 65535.0);
 				imshow("SmallImage", ImRGBSmall);
 				imshow("SmallROI", ShowSolidRegionOnImage(Roi, ImRGBSmall));
-				waitKey();
+				waitKey(waitTime);
 			}
 			Mat COM = COMStd(SmallIm, Roi, ofset, angleNr, roiNr, symetricCom, binCount, maxNorm,minNorm);
 			float contrast, energy, homogenity, correlation;
 			COMParams(COM, &contrast, &energy, &homogenity, &correlation);
+			OutString += InPath.filename().string() + "\t";
+			OutString += to_string(roiNr) + "\t"; 
+			OutString += to_string(contrast) + "\t";
+			OutString += to_string(energy) + "\t";
+			OutString += to_string(homogenity) + "\t";
+			OutString += to_string(correlation) + "\n";
 		}
 	}
+	string TextFileName = OutFolderName +OutFilerName;
+	std::ofstream out(TextFileName);
+	out << OutString;
+	out.close();
 	return 0;
 }
 
