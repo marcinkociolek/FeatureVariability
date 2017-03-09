@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 	path PathROIFile("C:\\Data\\FeatureVariabilityTest\\InData\\ROIs512x512c51x51xCount001\\ROIRectSize59x59Nr000.tif");
 
 	string OutFolderName = "C:\\Data\\FeatureVariabilityTest\\";
-	string OutFilerName = "BarsA0-180F16T08N00000.txt";
+	string OutFileName = "BarsA0-180F16T08N00000.txt";
 	int ofset = 3;
 	int angleNr = 0;
 
@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
 			OutString += to_string(correlation) + "\n";
 		}
 	}
-	string TextFileName = OutFolderName +OutFilerName;
+	string TextFileName = OutFolderName +OutFileName;
 	std::ofstream out(TextFileName);
 	out << OutString;
 	out.close();
